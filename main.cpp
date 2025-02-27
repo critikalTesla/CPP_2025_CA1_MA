@@ -7,7 +7,7 @@
 using namespace std;
 
 
-struct Person {//hate them
+struct Person {
     int id;
     string firstName;
     string lastName;
@@ -15,7 +15,6 @@ struct Person {//hate them
     string gender;
     string ipAddress;
 };
-
 
 vector<Person> readPeopleFromFile(const string& filename) {
     vector<Person> people;
@@ -32,7 +31,6 @@ vector<Person> readPeopleFromFile(const string& filename) {
         string token;
         Person person;
 
-
         getline(ss, token, ','); // ID
         person.id = stoi(token);
 
@@ -42,7 +40,6 @@ vector<Person> readPeopleFromFile(const string& filename) {
         getline(ss, person.gender, ',');
         getline(ss, person.ipAddress, ',');
 
-
         people.push_back(person);
     }
 
@@ -51,40 +48,30 @@ vector<Person> readPeopleFromFile(const string& filename) {
 }
 
 
-void displayPeopleFormatted(const vector<Person>& people) {
-
-    const int idWidth = 5;
-    const int nameWidth = 15;
-    const int emailWidth = 25;
-    const int genderWidth = 10;
-    const int ipWidth = 15;
-
-    cout << left << setw(idWidth) << "ID"
-         << setw(nameWidth) << "First Name"
-         << setw(nameWidth) << "Last Name"
-         << setw(emailWidth) << "Email"
-         << setw(genderWidth) << "Gender"
-         << setw(ipWidth) << "IP Address"
-         << endl;
-
-    cout << string(idWidth + nameWidth * 2 + emailWidth + genderWidth + ipWidth, '-') << endl;
-
-
-    for (auto it = people.begin(); it != people.end(); ++it) {
-        const Person& person = *it;
-        cout << left << setw(idWidth) << person.id
-             << setw(nameWidth) << person.firstName
-             << setw(nameWidth) << person.lastName
-             << setw(emailWidth) << person.email
-             << setw(genderWidth) << person.gender
-             << setw(ipWidth) << person.ipAddress
-             << endl;
+int findPersonByGender(const vector<Person>& people, const string& gender) {
+    for (size_t i = 0; i < people.size(); ++i) {
+        if (people[i].gender == gender) {
+            return i;
+        }
     }
+    return -1;
+}
+
+
+void displayPerson(const Person& person) {
+    cout << left << setw(5) << "ID" << ": " << person.id << endl;
+    cout << setw(15) << "First Name" << ": " << person.firstName << endl;
+    cout << setw(15) << "Last Name" << ": " << person.lastName << endl;
+    cout << setw(15) << "Email" << ": " << person.email << endl;
+    cout << setw(15) << "Gender" << ": " << person.gender << endl;
+    cout << setw(15) << "IP Address" << ": " << person.ipAddress << endl;
+    cout << "-------------------------" << endl;
 }
 
 int main() {
-
     string filename = "data.csv";
+
+
     vector<Person> people = readPeopleFromFile(filename);
 
     if (people.empty()) {
@@ -92,7 +79,22 @@ int main() {
         return 1;
     }
 
-    displayPeopleFormatted(people);
+
+    string searchGender;
+    cout << "Enter the gender to search for (e.g., Male, Female, Bigender, etc.): ";
+    cin >> searchGender;
+
+
+    int index = findPersonByGender(people, searchGender);
+
+    if (index != -1) {
+
+        cout << "\nPerson found:\n";
+        displayPerson(people[index]);
+    } else {
+
+        cout << "\nNo person with gender '" << searchGender << "' was found.\n";
+    }
 
     return 0;
 }
