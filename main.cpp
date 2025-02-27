@@ -3,11 +3,11 @@
 #include <sstream>
 #include <vector>
 #include <string>
-#include <algorithm>
+#include <iomanip>
 using namespace std;
 
 
-struct Person {
+struct Person {//hate them
     int id;
     string firstName;
     string lastName;
@@ -33,18 +33,14 @@ vector<Person> readPeopleFromFile(const string& filename) {
         Person person;
 
 
-        auto readNextColumn = [&](string& field) {
-            getline(ss, field, ',');
-        };
-
-        readNextColumn(token); // ID
+        getline(ss, token, ','); // ID
         person.id = stoi(token);
 
-        readNextColumn(person.firstName);
-        readNextColumn(person.lastName);
-        readNextColumn(person.email);
-        readNextColumn(person.gender);
-        readNextColumn(person.ipAddress);
+        getline(ss, person.firstName, ',');
+        getline(ss, person.lastName, ',');
+        getline(ss, person.email, ',');
+        getline(ss, person.gender, ',');
+        getline(ss, person.ipAddress, ',');
 
 
         people.push_back(person);
@@ -55,27 +51,48 @@ vector<Person> readPeopleFromFile(const string& filename) {
 }
 
 
-void displayPeople(const vector<Person>& people) {
+void displayPeopleFormatted(const vector<Person>& people) {
 
-    for_each(people.begin(), people.end(), [](const Person& person) {
-        cout << "ID: " << person.id << endl;
-        cout << "First Name: " << person.firstName << endl;
-        cout << "Last Name: " << person.lastName << endl;
-        cout << "Email: " << person.email << endl;
-        cout << "Gender: " << person.gender << endl;
-        cout << "IP Address: " << person.ipAddress << endl;
-        cout << "-------------------------" << endl;
-    });
+    const int idWidth = 5;
+    const int nameWidth = 15;
+    const int emailWidth = 25;
+    const int genderWidth = 10;
+    const int ipWidth = 15;
+
+    cout << left << setw(idWidth) << "ID"
+         << setw(nameWidth) << "First Name"
+         << setw(nameWidth) << "Last Name"
+         << setw(emailWidth) << "Email"
+         << setw(genderWidth) << "Gender"
+         << setw(ipWidth) << "IP Address"
+         << endl;
+
+    cout << string(idWidth + nameWidth * 2 + emailWidth + genderWidth + ipWidth, '-') << endl;
+
+
+    for (auto it = people.begin(); it != people.end(); ++it) {
+        const Person& person = *it;
+        cout << left << setw(idWidth) << person.id
+             << setw(nameWidth) << person.firstName
+             << setw(nameWidth) << person.lastName
+             << setw(emailWidth) << person.email
+             << setw(genderWidth) << person.gender
+             << setw(ipWidth) << person.ipAddress
+             << endl;
+    }
 }
 
 int main() {
+
     string filename = "data.csv";
     vector<Person> people = readPeopleFromFile(filename);
+
     if (people.empty()) {
         cerr << "No data was read from the file." << endl;
         return 1;
     }
-    displayPeople(people);
+
+    displayPeopleFormatted(people);
 
     return 0;
 }
