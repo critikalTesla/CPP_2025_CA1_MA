@@ -1,56 +1,81 @@
 #include <iostream>
-#include <vector>
-#include <algorithm>
 #include <fstream>
 #include <sstream>
-#include <map>
+#include <vector>
+#include <string>
+#include <algorithm>
 using namespace std;
 
-void read_file() {
-    ifstream fin("data.csv");
+
+struct Person {
+    int id;
+    string firstName;
+    string lastName;
+    string email;
+    string gender;
+    string ipAddress;
+};
 
 
-    int idnum;
-    cout << "Enter the id of the people to display details: ";
-    cin >> idnum;
+vector<Person> readPeopleFromFile(const string& filename) {
+    vector<Person> people;
+    ifstream file(filename);
 
-    map<int, vector<string>> dataMap;
+    if (!file.is_open()) {
+        cerr << "Error: Could not open file " << filename << endl;
+        return people;
+    }
+
     string line;
+    while (getline(file, line)) {
+        stringstream ss(line);
+        string token;
+        Person person;
 
-    while (getline(fin, line)) {
-        vector<string> row;
-        stringstream s(line);
-        string word;
 
-        while (getline(s, word, ',')) {
-            row.push_back(word);
-        }
+        auto readNextColumn = [&](string& field) {
+            getline(ss, field, ',');
+        };
 
-        int id = stoi(row[0]);
-        dataMap[id] = row;
+        readNextColumn(token); // ID
+        person.id = stoi(token);
+
+        readNextColumn(person.firstName);
+        readNextColumn(person.lastName);
+        readNextColumn(person.email);
+        readNextColumn(person.gender);
+        readNextColumn(person.ipAddress);
+
+
+        people.push_back(person);
     }
 
-    fin.close();
+    file.close();
+    return people;
+}
 
-    auto it = dataMap.find(idnum);
-    if (it != dataMap.end()) {
-        vector<string>& row = it->second;
-        cout << "Details of ID " << row[0] << " : \n";
-        cout << "Name: " << row[1] << "\n";
-        cout << "Last Name: " << row[2] << "\n";
-        cout << "Email: " << row[3] << "\n";
-        cout << "Gender: " << row[4] << "\n";
-        cout << "IP Address: " << row[5] << "\n";
-    } else {
-        cout << "Record not found\n";
-    }
-    if (!fin.is_open()) {
-        cerr << "Error opening file!" << endl;
-        return;
-    }
+
+void displayPeople(const vector<Person>& people) {
+
+    for_each(people.begin(), people.end(), [](const Person& person) {
+        cout << "ID: " << person.id << endl;
+        cout << "First Name: " << person.firstName << endl;
+        cout << "Last Name: " << person.lastName << endl;
+        cout << "Email: " << person.email << endl;
+        cout << "Gender: " << person.gender << endl;
+        cout << "IP Address: " << person.ipAddress << endl;
+        cout << "-------------------------" << endl;
+    });
 }
 
 int main() {
-    read_file();
+    string filename = "data.csv";
+    vector<Person> people = readPeopleFromFile(filename);
+    if (people.empty()) {
+        cerr << "No data was read from the file." << endl;
+        return 1;
+    }
+    displayPeople(people);
+
     return 0;
 }
