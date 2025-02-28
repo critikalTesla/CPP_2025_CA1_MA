@@ -33,7 +33,7 @@ vector<Person> readPeopleFromFile(const string& filename) {
         string token;
         Person person;
 
-        getline(ss, token, ','); // ID
+        getline(ss, token, ',');
         person.id = stoi(token);
 
         getline(ss, person.firstName, ',');
@@ -161,7 +161,6 @@ void findFirstPersonByGender(const vector<Person>& people, const string& gender)
     cout << "\nNo person with gender '" << gender << "' was found.\n";
 }
 
-
 void findAllPersonsByGender(const vector<Person>& people, const string& gender) {
     bool found = false;
 
@@ -193,6 +192,41 @@ void findAllPersonsByGender(const vector<Person>& people, const string& gender) 
     }
 }
 
+void searchByPartialMatch(const vector<Person>& people, const string& searchText) {
+    bool found = false;
+
+    cout << left << setw(5) << "ID"
+         << setw(15) << "First Name"
+         << setw(15) << "Last Name"
+         << setw(25) << "Email"
+         << setw(10) << "Gender"
+         << setw(15) << "IP Address"
+         << endl;
+
+    cout << string(85, '-') << endl;
+
+    for (auto it = people.begin(); it != people.end(); ++it) {
+        const Person& person = *it;
+        if (person.firstName.find(searchText) != string::npos ||
+            person.lastName.find(searchText) != string::npos ||
+            person.email.find(searchText) != string::npos ||
+            person.gender.find(searchText) != string::npos) {
+            found = true;
+            cout << left << setw(5) << person.id
+                 << setw(15) << person.firstName
+                 << setw(15) << person.lastName
+                 << setw(25) << person.email
+                 << setw(10) << person.gender
+                 << setw(15) << person.ipAddress
+                 << endl;
+        }
+    }
+
+    if (!found) {
+        cout << "No records found containing the text: " << searchText << endl;
+    }
+}
+
 int main() {
     string filename = "data.csv";
 
@@ -211,7 +245,8 @@ int main() {
         cout << "3. Analyze gender counts (highest, lowest, average)\n";
         cout << "4. Search for the first person by gender\n";
         cout << "5. Search for all persons by gender\n";
-        cout << "6. Exit\n";
+        cout << "6. Search for items by partial match\n";
+        cout << "7. Exit\n";
         cout << "Enter your choice: ";
         cin >> choice;
 
@@ -251,6 +286,13 @@ int main() {
                 break;
             }
             case 6: {
+                string searchText;
+                cout << "Enter the text to search for (e.g., Mark, Female, @gmail.com): ";
+                cin >> searchText;
+                searchByPartialMatch(people, searchText);
+                break;
+            }
+            case 7: {
                 cout << "Exiting the program.\n";
                 break;
             }
@@ -259,7 +301,7 @@ int main() {
                 break;
             }
         }
-    } while (choice != 6);
+    } while (choice != 7);
 
     return 0;
 }
