@@ -3,6 +3,7 @@
 #include <sstream>
 #include <vector>
 #include <string>
+#include <map>
 #include <iomanip>
 using namespace std;
 
@@ -15,6 +16,7 @@ struct Person {
     string gender;
     string ipAddress;
 };
+
 
 vector<Person> readPeopleFromFile(const string& filename) {
     vector<Person> people;
@@ -31,6 +33,7 @@ vector<Person> readPeopleFromFile(const string& filename) {
         string token;
         Person person;
 
+        // Read each column of the CSV line
         getline(ss, token, ','); // ID
         person.id = stoi(token);
 
@@ -48,29 +51,46 @@ vector<Person> readPeopleFromFile(const string& filename) {
 }
 
 
-int findPersonByGender(const vector<Person>& people, const string& gender) {
-    for (size_t i = 0; i < people.size(); ++i) {
-        if (people[i].gender == gender) {
-            return i;
+map<string, int> countUniqueValues(const vector<Person>& people, const string& column) {
+    map<string, int> countMap;
+
+    for (const auto& person : people) {
+        string value;
+        if (column == "gender") {
+            value = person.gender;
+        } else if (column == "ipAddress") {
+            value = person.ipAddress;
+        } else if (column == "email") {
+            value = person.email;
+        } else if (column == "firstName") {
+            value = person.firstName;
+        } else if (column == "lastName") {
+            value = person.lastName;
+        } else {
+            cerr << "Invalid column name provided." << endl;
+            return countMap;
         }
+
+
+        countMap[value]++;
     }
-    return -1;
+
+    return countMap;
 }
 
 
-void displayPerson(const Person& person) {
-    cout << left << setw(5) << "ID" << ": " << person.id << endl;
-    cout << setw(15) << "First Name" << ": " << person.firstName << endl;
-    cout << setw(15) << "Last Name" << ": " << person.lastName << endl;
-    cout << setw(15) << "Email" << ": " << person.email << endl;
-    cout << setw(15) << "Gender" << ": " << person.gender << endl;
-    cout << setw(15) << "IP Address" << ": " << person.ipAddress << endl;
-    cout << "-------------------------" << endl;
+void displayCountMap(const map<string, int>& countMap, const string& column) {
+    cout << "Count of unique values in column '" << column << "':\n";
+    cout << setw(20) << left << "Value" << "Count\n";
+    cout << string(30, '-') << endl;
+
+    for (const auto& pair : countMap) {
+        cout << setw(20) << left << pair.first << pair.second << endl;
+    }
 }
 
 int main() {
     string filename = "data.csv";
-
 
     vector<Person> people = readPeopleFromFile(filename);
 
@@ -80,21 +100,14 @@ int main() {
     }
 
 
-    string searchGender;
-    cout << "Enter the gender to search for (e.g., Male, Female, Bigender, etc.): ";
-    cin >> searchGender;
+    string column;
+    cout << "Enter the column name to count unique values (e.g., gender, ipAddress, email, firstName, lastName): ";
+    cin >> column;
 
+    map<string, int> countMap = countUniqueValues(people, column);
 
-    int index = findPersonByGender(people, searchGender);
-
-    if (index != -1) {
-
-        cout << "\nPerson found:\n";
-        displayPerson(people[index]);
-    } else {
-
-        cout << "\nNo person with gender '" << searchGender << "' was found.\n";
-    }
+    // Display the count map
+    displayCountMap(countMap, column);
 
     return 0;
 }
