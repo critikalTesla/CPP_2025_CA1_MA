@@ -33,8 +33,8 @@ vector<Person> readPeopleFromFile(const string& filename) {
         string token;
         Person person;
 
-        // Read each column of the CSV line
-        getline(ss, token, ','); // ID
+
+        getline(ss, token, ',');
         person.id = stoi(token);
 
         getline(ss, person.firstName, ',');
@@ -43,11 +43,46 @@ vector<Person> readPeopleFromFile(const string& filename) {
         getline(ss, person.gender, ',');
         getline(ss, person.ipAddress, ',');
 
+
         people.push_back(person);
     }
 
     file.close();
     return people;
+}
+
+
+void displaySubsetByGender(const vector<Person>& people, const string& gender) {
+    bool found = false;
+
+
+    cout << left << setw(5) << "ID"
+         << setw(15) << "First Name"
+         << setw(15) << "Last Name"
+         << setw(25) << "Email"
+         << setw(10) << "Gender"
+         << setw(15) << "IP Address"
+         << endl;
+
+    cout << string(85, '-') << endl;
+
+
+    for (const auto& person : people) {
+        if (person.gender == gender) {
+            found = true;
+            cout << left << setw(5) << person.id
+                 << setw(15) << person.firstName
+                 << setw(15) << person.lastName
+                 << setw(25) << person.email
+                 << setw(10) << person.gender
+                 << setw(15) << person.ipAddress
+                 << endl;
+        }
+    }
+
+    if (!found) {
+        cout << "No records found for gender: " << gender << endl;
+    }
 }
 
 
@@ -89,8 +124,29 @@ void displayCountMap(const map<string, int>& countMap, const string& column) {
     }
 }
 
+
+int findPersonByGender(const vector<Person>& people, const string& gender) {
+    for (size_t i = 0; i < people.size(); ++i) {
+        if (people[i].gender == gender) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+void displayPerson(const Person& person) {
+    cout << left << setw(5) << "ID" << ": " << person.id << endl;
+    cout << setw(15) << "First Name" << ": " << person.firstName << endl;
+    cout << setw(15) << "Last Name" << ": " << person.lastName << endl;
+    cout << setw(15) << "Email" << ": " << person.email << endl;
+    cout << setw(15) << "Gender" << ": " << person.gender << endl;
+    cout << setw(15) << "IP Address" << ": " << person.ipAddress << endl;
+    cout << "-------------------------" << endl;
+}
+
 int main() {
     string filename = "data.csv";
+
 
     vector<Person> people = readPeopleFromFile(filename);
 
@@ -100,14 +156,55 @@ int main() {
     }
 
 
-    string column;
-    cout << "Enter the column name to count unique values (e.g., gender, ipAddress, email, firstName, lastName): ";
-    cin >> column;
+    int choice;
+    do {
+        cout << "\nMenu:\n";
+        cout << "1. Display subset of rows by gender\n";
+        cout << "2. Count unique values in a column\n";
+        cout << "3. Search for a person by gender\n";
+        cout << "4. Exit\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
 
-    map<string, int> countMap = countUniqueValues(people, column);
-
-    // Display the count map
-    displayCountMap(countMap, column);
+        switch (choice) {
+            case 1: {
+                string searchGender;
+                cout << "Enter the gender to filter by (e.g., Male, Female, Bigender, etc.): ";
+                cin >> searchGender;
+                displaySubsetByGender(people, searchGender);
+                break;
+            }
+            case 2: {
+                string column;
+                cout << "Enter the column name to count unique values (e.g., gender, ipAddress, email, firstName, lastName): ";
+                cin >> column;
+                map<string, int> countMap = countUniqueValues(people, column);
+                displayCountMap(countMap, column);
+                break;
+            }
+            case 3: {
+                string searchGender;
+                cout << "Enter the gender to search for (e.g., Male, Female, Bigender, etc.): ";
+                cin >> searchGender;
+                int index = findPersonByGender(people, searchGender);
+                if (index != -1) {
+                    cout << "\nPerson found:\n";
+                    displayPerson(people[index]);
+                } else {
+                    cout << "\nNo person with gender '" << searchGender << "' was found.\n";
+                }
+                break;
+            }
+            case 4: {
+                cout << "Exiting the program.\n";
+                break;
+            }
+            default: {
+                cout << "Invalid choice. Please try again.\n";
+                break;
+            }
+        }
+    } while (choice != 4);
 
     return 0;
 }
