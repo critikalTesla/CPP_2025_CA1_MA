@@ -5,6 +5,8 @@
 #include <string>
 #include <map>
 #include <iomanip>
+#include <numeric>
+#include <algorithm>
 using namespace std;
 
 struct Person {
@@ -104,7 +106,6 @@ map<string, int> countUniqueValues(const vector<Person>& people, const string& c
     return countMap;
 }
 
-
 void displayCountMap(const map<string, int>& countMap, const string& column) {
     cout << "Count of unique values in column '" << column << "':\n";
     cout << setw(20) << left << "Value" << "Count\n";
@@ -115,6 +116,33 @@ void displayCountMap(const map<string, int>& countMap, const string& column) {
     }
 }
 
+void analyzeGenderCounts(const map<string, int>& countMap) {
+    if (countMap.empty()) {
+        cout << "No gender data to analyze.\n";
+        return;
+    }
+
+    auto maxPair = *max_element(countMap.begin(), countMap.end(),
+        [](const pair<string, int>& a, const pair<string, int>& b) {
+            return a.second < b.second;
+        });
+
+    auto minPair = *min_element(countMap.begin(), countMap.end(),
+        [](const pair<string, int>& a, const pair<string, int>& b) {
+            return a.second < b.second;
+        });
+
+    int total = accumulate(countMap.begin(), countMap.end(), 0,
+        [](int sum, const pair<string, int>& pair) {
+            return sum + pair.second;
+        });
+    double average = static_cast<double>(total) / countMap.size();
+
+    cout << "\nGender Count Analysis:\n";
+    cout << "Highest count: " << maxPair.first << " (" << maxPair.second << ")\n";
+    cout << "Lowest count: " << minPair.first << " (" << minPair.second << ")\n";
+    cout << "Average count: " << fixed << setprecision(2) << average << "\n";
+}
 
 void findFirstPersonByGender(const vector<Person>& people, const string& gender) {
     for (const auto& person : people) {
@@ -132,6 +160,7 @@ void findFirstPersonByGender(const vector<Person>& people, const string& gender)
     }
     cout << "\nNo person with gender '" << gender << "' was found.\n";
 }
+
 
 void findAllPersonsByGender(const vector<Person>& people, const string& gender) {
     bool found = false;
@@ -179,9 +208,10 @@ int main() {
         cout << "\nMenu:\n";
         cout << "1. Display subset of rows by gender\n";
         cout << "2. Count unique values in a column\n";
-        cout << "3. Search for the first person by gender\n";
-        cout << "4. Search for all persons by gender\n";
-        cout << "5. Exit\n";
+        cout << "3. Analyze gender counts (highest, lowest, average)\n";
+        cout << "4. Search for the first person by gender\n";
+        cout << "5. Search for all persons by gender\n";
+        cout << "6. Exit\n";
         cout << "Enter your choice: ";
         cin >> choice;
 
@@ -202,20 +232,25 @@ int main() {
                 break;
             }
             case 3: {
-                string searchGender;
-                cout << "Enter the gender to search for (e.g., Male, Female, Bigender, etc.): ";
-                cin >> searchGender;
-                findFirstPersonByGender(people, searchGender);
+                map<string, int> genderCountMap = countUniqueValues(people, "gender");
+                analyzeGenderCounts(genderCountMap);
                 break;
             }
             case 4: {
                 string searchGender;
                 cout << "Enter the gender to search for (e.g., Male, Female, Bigender, etc.): ";
                 cin >> searchGender;
-                findAllPersonsByGender(people, searchGender);
+                findFirstPersonByGender(people, searchGender);
                 break;
             }
             case 5: {
+                string searchGender;
+                cout << "Enter the gender to search for (e.g., Male, Female, Bigender, etc.): ";
+                cin >> searchGender;
+                findAllPersonsByGender(people, searchGender);
+                break;
+            }
+            case 6: {
                 cout << "Exiting the program.\n";
                 break;
             }
@@ -224,7 +259,7 @@ int main() {
                 break;
             }
         }
-    } while (choice != 5);
+    } while (choice != 6);
 
     return 0;
 }
