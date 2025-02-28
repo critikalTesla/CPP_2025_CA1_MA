@@ -7,7 +7,6 @@
 #include <iomanip>
 using namespace std;
 
-
 struct Person {
     int id;
     string firstName;
@@ -16,7 +15,6 @@ struct Person {
     string gender;
     string ipAddress;
 };
-
 
 vector<Person> readPeopleFromFile(const string& filename) {
     vector<Person> people;
@@ -33,8 +31,7 @@ vector<Person> readPeopleFromFile(const string& filename) {
         string token;
         Person person;
 
-
-        getline(ss, token, ',');
+        getline(ss, token, ','); // ID
         person.id = stoi(token);
 
         getline(ss, person.firstName, ',');
@@ -43,7 +40,6 @@ vector<Person> readPeopleFromFile(const string& filename) {
         getline(ss, person.gender, ',');
         getline(ss, person.ipAddress, ',');
 
-
         people.push_back(person);
     }
 
@@ -51,10 +47,8 @@ vector<Person> readPeopleFromFile(const string& filename) {
     return people;
 }
 
-
 void displaySubsetByGender(const vector<Person>& people, const string& gender) {
     bool found = false;
-
 
     cout << left << setw(5) << "ID"
          << setw(15) << "First Name"
@@ -65,7 +59,6 @@ void displaySubsetByGender(const vector<Person>& people, const string& gender) {
          << endl;
 
     cout << string(85, '-') << endl;
-
 
     for (const auto& person : people) {
         if (person.gender == gender) {
@@ -84,7 +77,6 @@ void displaySubsetByGender(const vector<Person>& people, const string& gender) {
         cout << "No records found for gender: " << gender << endl;
     }
 }
-
 
 map<string, int> countUniqueValues(const vector<Person>& people, const string& column) {
     map<string, int> countMap;
@@ -106,7 +98,6 @@ map<string, int> countUniqueValues(const vector<Person>& people, const string& c
             return countMap;
         }
 
-
         countMap[value]++;
     }
 
@@ -125,28 +116,56 @@ void displayCountMap(const map<string, int>& countMap, const string& column) {
 }
 
 
-int findPersonByGender(const vector<Person>& people, const string& gender) {
-    for (size_t i = 0; i < people.size(); ++i) {
-        if (people[i].gender == gender) {
-            return i;
+void findFirstPersonByGender(const vector<Person>& people, const string& gender) {
+    for (const auto& person : people) {
+        if (person.gender == gender) {
+            cout << "\nFirst person found with gender '" << gender << "':\n";
+            cout << left << setw(5) << "ID" << ": " << person.id << endl;
+            cout << setw(15) << "First Name" << ": " << person.firstName << endl;
+            cout << setw(15) << "Last Name" << ": " << person.lastName << endl;
+            cout << setw(15) << "Email" << ": " << person.email << endl;
+            cout << setw(15) << "Gender" << ": " << person.gender << endl;
+            cout << setw(15) << "IP Address" << ": " << person.ipAddress << endl;
+            cout << "-------------------------" << endl;
+            return;
         }
     }
-    return -1;
+    cout << "\nNo person with gender '" << gender << "' was found.\n";
 }
 
-void displayPerson(const Person& person) {
-    cout << left << setw(5) << "ID" << ": " << person.id << endl;
-    cout << setw(15) << "First Name" << ": " << person.firstName << endl;
-    cout << setw(15) << "Last Name" << ": " << person.lastName << endl;
-    cout << setw(15) << "Email" << ": " << person.email << endl;
-    cout << setw(15) << "Gender" << ": " << person.gender << endl;
-    cout << setw(15) << "IP Address" << ": " << person.ipAddress << endl;
-    cout << "-------------------------" << endl;
+void findAllPersonsByGender(const vector<Person>& people, const string& gender) {
+    bool found = false;
+
+    cout << left << setw(5) << "ID"
+         << setw(15) << "First Name"
+         << setw(15) << "Last Name"
+         << setw(25) << "Email"
+         << setw(10) << "Gender"
+         << setw(15) << "IP Address"
+         << endl;
+
+    cout << string(85, '-') << endl;
+
+    for (const auto& person : people) {
+        if (person.gender == gender) {
+            found = true;
+            cout << left << setw(5) << person.id
+                 << setw(15) << person.firstName
+                 << setw(15) << person.lastName
+                 << setw(25) << person.email
+                 << setw(10) << person.gender
+                 << setw(15) << person.ipAddress
+                 << endl;
+        }
+    }
+
+    if (!found) {
+        cout << "No records found for gender: " << gender << endl;
+    }
 }
 
 int main() {
     string filename = "data.csv";
-
 
     vector<Person> people = readPeopleFromFile(filename);
 
@@ -155,14 +174,14 @@ int main() {
         return 1;
     }
 
-
     int choice;
     do {
         cout << "\nMenu:\n";
         cout << "1. Display subset of rows by gender\n";
         cout << "2. Count unique values in a column\n";
-        cout << "3. Search for a person by gender\n";
-        cout << "4. Exit\n";
+        cout << "3. Search for the first person by gender\n";
+        cout << "4. Search for all persons by gender\n";
+        cout << "5. Exit\n";
         cout << "Enter your choice: ";
         cin >> choice;
 
@@ -186,16 +205,17 @@ int main() {
                 string searchGender;
                 cout << "Enter the gender to search for (e.g., Male, Female, Bigender, etc.): ";
                 cin >> searchGender;
-                int index = findPersonByGender(people, searchGender);
-                if (index != -1) {
-                    cout << "\nPerson found:\n";
-                    displayPerson(people[index]);
-                } else {
-                    cout << "\nNo person with gender '" << searchGender << "' was found.\n";
-                }
+                findFirstPersonByGender(people, searchGender);
                 break;
             }
             case 4: {
+                string searchGender;
+                cout << "Enter the gender to search for (e.g., Male, Female, Bigender, etc.): ";
+                cin >> searchGender;
+                findAllPersonsByGender(people, searchGender);
+                break;
+            }
+            case 5: {
                 cout << "Exiting the program.\n";
                 break;
             }
@@ -204,7 +224,7 @@ int main() {
                 break;
             }
         }
-    } while (choice != 4);
+    } while (choice != 5);
 
     return 0;
 }
