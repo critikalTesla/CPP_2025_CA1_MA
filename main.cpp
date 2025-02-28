@@ -227,6 +227,34 @@ void searchByPartialMatch(const vector<Person>& people, const string& searchText
     }
 }
 
+void displayDataByDescendingIP(vector<Person>& people) {
+    sort(people.begin(), people.end(), [](const Person& a, const Person& b) {
+        double ipA = stod(a.ipAddress);
+        double ipB = stod(b.ipAddress);
+        return ipA > ipB;
+    });
+
+    cout << left << setw(5) << "ID"
+         << setw(15) << "First Name"
+         << setw(15) << "Last Name"
+         << setw(25) << "Email"
+         << setw(10) << "Gender"
+         << setw(15) << "IP Address"
+         << endl;
+
+    cout << string(85, '-') << endl;
+
+    for (const auto& person : people) {
+        cout << left << setw(5) << person.id
+             << setw(15) << person.firstName
+             << setw(15) << person.lastName
+             << setw(25) << person.email
+             << setw(10) << person.gender
+             << setw(15) << person.ipAddress
+             << endl;
+    }
+}
+
 int main() {
     string filename = "data.csv";
 
@@ -246,7 +274,8 @@ int main() {
         cout << "4. Search for the first person by gender\n";
         cout << "5. Search for all persons by gender\n";
         cout << "6. Search for items by partial match\n";
-        cout << "7. Exit\n";
+        cout << "7. Display data in descending order of IP address\n";
+        cout << "8. Exit\n";
         cout << "Enter your choice: ";
         cin >> choice;
 
@@ -293,6 +322,10 @@ int main() {
                 break;
             }
             case 7: {
+                displayDataByDescendingIP(people);
+                break;
+            }
+            case 8: {
                 cout << "Exiting the program.\n";
                 break;
             }
@@ -301,7 +334,7 @@ int main() {
                 break;
             }
         }
-    } while (choice != 7);
+    } while (choice != 8);
 
     return 0;
 }
